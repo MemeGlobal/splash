@@ -7,7 +7,7 @@ import weakref
 import uuid
 
 from PyQt5.QtCore import QObject, QSize, Qt, QTimer, pyqtSlot, QEvent, QPointF
-from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtGui import QMouseEvent, QKeyEvent
 from PyQt5.QtNetwork import QNetworkRequest
 from PyQt5.QtWebKitWidgets import QWebPage
 from PyQt5.QtWebKit import QWebSettings
@@ -868,6 +868,19 @@ class BrowserTab(QObject):
         buttons = QApplication.mouseButtons()
         modifiers = QApplication.keyboardModifiers()
         event = QMouseEvent(type, point, q_button, buttons, modifiers)
+        QApplication.postEvent(self.web_page, event)
+
+    def send_keys(self, text, key_type=None):
+        """
+        Send key events to webpage
+        :param text string to be sent as key strokes
+        :param key_type string representing the pressed key
+        :return: None
+        """
+        key_type = key_type or 'unknown'
+        key_type = getattr(Qt, 'Key_%s' % key_type, Qt.Key_unknown)
+        modifiers = QApplication.keyboardModifiers()
+        event = QKeyEvent(QEvent.KeyPress, key_type, modifiers, text)
         QApplication.postEvent(self.web_page, event)
 
 

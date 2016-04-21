@@ -789,6 +789,10 @@ class Splash(BaseExposedObject):
         self._check_mouse_coordinantes(x, y)
         self.tab.mouse_hover(x, y)
 
+    @command()
+    def send_keys(self, text, key_type=None):
+        return self.tab.send_keys(text, key_type)
+
     @command(async=True)
     def set_content(self, data, mime_type=None, baseurl=None):
         if isinstance(data, six.text_type):
