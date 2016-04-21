@@ -870,6 +870,11 @@ class BrowserTab(QObject):
         event = QMouseEvent(type, point, q_button, buttons, modifiers)
         QApplication.postEvent(self.web_page, event)
 
+    def find_element(self, selector):
+        frame = self.web_page.mainFrame()
+        element = frame.findFirstElement(selector)
+        return element
+
     def send_keys(self, text, key_type=None):
         """
         Send key events to webpage

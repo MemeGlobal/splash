@@ -3654,6 +3654,32 @@ class MouseEventsTest(BaseLuaRenderTest):
         msg = "coordinate must be a number"
         self.assertScriptError(resp, ScriptError.SPLASH_LUA_ERROR, msg)
 
+    def test_click_selector(self):
+        resp = self.request_lua("""
+             function main(splash)
+                assert(splash:go(splash.args.url))
+                splash:click('#button')
+                splash:wait(0.1)
+                return splash:html()
+            end
+            """, {"url": self.mockurl("jsevent?event_type=click")})
+        self.assertStatusCode(resp, 200)
+        self.assertIn("button", resp.text)
+        self.assertNotIn('this must be removed after click', resp.text)
+        self._assert_event_property("type", "click", resp)
+
+    def test_click_with_bad_selector(self):
+        resp = self.request_lua("""
+             function main(splash)
+                assert(splash:go(splash.args.url))
+                splash:click('invalid_selector')
+                splash:wait(0.1)
+                return splash:html()
+            end
+            """, {"url": self.mockurl("jsevent?event_type=click")})
+        msg = "element at 'invalid_selector' not found"
+        self.assertScriptError(resp, ScriptError.SPLASH_LUA_ERROR, msg)
+
 
 class KeyEventsTest(BaseLuaRenderTest):
     def test_send_keys(self):

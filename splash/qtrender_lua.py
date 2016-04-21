@@ -790,8 +790,15 @@ class Splash(BaseExposedObject):
         self.tab.mouse_hover(x, y)
 
     @command()
-    def send_keys(self, text, key_type=None):
-        return self.tab.send_keys(text, key_type)
+    def click(self, selector):
+        element = self.tab.find_element(selector)
+        if element.isNull():
+            raise ScriptError({
+                "argument": selector,
+                "message": "element at {!r} not found".format(selector)
+            })
+        x, y = element.geometry().x(), element.geometry().y()
+        return self.mouse_click(x, y)
 
     @command(async=True)
     def set_content(self, data, mime_type=None, baseurl=None):
