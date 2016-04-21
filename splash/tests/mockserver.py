@@ -638,9 +638,9 @@ RgbStripesPage = _html_resource("""
 InputsPage = _html_resource("""
 <html>
     <body>
-        <input type="text"/>
-        <input type="text" value="PREFILL"/>
-        <input type="text"/>
+        <input type="text" id="input1"/>
+        <input type="text" id="input2"/>
+        <input type="text" id="input3"/>
     </body>
 </html>
 """)

@@ -800,6 +800,12 @@ class Splash(BaseExposedObject):
         x, y = element.geometry().x(), element.geometry().y()
         return self.mouse_click(x, y)
 
+    @command()
+    def send_keys(self, text, selector=None, key_type=None):
+        if selector:
+            self.click(selector)
+        self.tab.send_keys(text, key_type)
+
     @command(async=True)
     def set_content(self, data, mime_type=None, baseurl=None):
         if isinstance(data, six.text_type):

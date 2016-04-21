@@ -884,6 +884,9 @@ class BrowserTab(QObject):
         """
         key_type = key_type or 'unknown'
         key_type = getattr(Qt, 'Key_%s' % key_type, Qt.Key_unknown)
+        self._send_keys(text, key_type)
+
+    def _send_keys(self, text, key_type):
         modifiers = QApplication.keyboardModifiers()
         event = QKeyEvent(QEvent.KeyPress, key_type, modifiers, text)
         QApplication.postEvent(self.web_page, event)

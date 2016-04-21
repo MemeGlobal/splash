@@ -3682,6 +3682,35 @@ class MouseEventsTest(BaseLuaRenderTest):
 
 
 class KeyEventsTest(BaseLuaRenderTest):
+    def test_send_raw_key_events(self):
+        resp = self.request_lua("""
+             function main(splash)
+                assert(splash:go(splash.args.url))
+                join_inputs = splash:jsfunc([[
+                    function () {
+                        var inputs = document.getElementsByTagName('input');
+                        var values = [];
+                        for (var i = 0; i < inputs.length; i++) {
+                            values.push(inputs[i].value);
+                        }
+                        return values.join('|');
+                    }
+                ]])
+                splash:send_keys('', nil, 'Tab')
+                splash:send_keys('Hello World')
+                splash:send_keys('', nil, 'Tab')
+                splash:send_keys('Foo Bar')
+                splash:send_keys('', nil, 'Tab')
+                splash:send_keys('Baz')
+                splash:wait(0.1)
+                inputs = join_inputs()
+                return inputs
+            end
+            """, {"url": self.mockurl("inputs-page")})
+        self.assertStatusCode(resp, 200)
+        expected = '|'.join(['Hello World', 'Foo Bar', 'Baz'])
+        self.assertEqual(expected, resp.text)
+
     def test_send_keys(self):
         resp = self.request_lua("""
              function main(splash)
@@ -3696,12 +3725,9 @@ class KeyEventsTest(BaseLuaRenderTest):
                         return values.join('|');
                     }
                 ]])
-                splash:send_keys('', 'Tab')
-                splash:send_keys('Hello World')
-                splash:send_keys('', 'Tab')
-                splash:send_keys('Foo Bar')
-                splash:send_keys('', 'Tab')
-                splash:send_keys('Baz')
+                splash:send_keys('Hello World', '#input1')
+                splash:send_keys('Foo Bar', '#input2')
+                splash:send_keys('Baz', '#input3')
                 splash:wait(0.1)
                 inputs = join_inputs()
                 return inputs
@@ -3710,3 +3736,15 @@ class KeyEventsTest(BaseLuaRenderTest):
         self.assertStatusCode(resp, 200)
         expected = '|'.join(['Hello World', 'Foo Bar', 'Baz'])
         self.assertEqual(expected, resp.text)
+
+    def test_send_keys_bad_selector(self):
+        resp = self.request_lua("""
+             function main(splash)
+                assert(splash:go(splash.args.url))
+                splash:send_keys('Hello world', 'invalid_selector')
+                splash:wait(0.1)
+                return splash:html()
+            end
+            """, {"url": self.mockurl("inputs-page")})
+        msg = "element at 'invalid_selector' not found"
+        self.assertScriptError(resp, ScriptError.SPLASH_LUA_ERROR, msg)
